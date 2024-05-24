@@ -9,7 +9,7 @@
 #include <sys/select.h>
 
 //#include <windows.h>
-//#pragma comment (lib, "winmm.lib")
+//#pragma comment (lib, "winmm.lib")sssss
 
 // user input을 받아서 처리하기 위하여 일정 시간마다 timeover 반환 - microsecond
 int32_t check_std_in(int32_t a_timeout)
