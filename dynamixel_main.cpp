@@ -7,9 +7,12 @@
 #include <chrono>
 #include <unistd.h>
 #include <sys/select.h>
+#include "dynamixel.h"
 
 //#include <windows.h>
 //#pragma comment (lib, "winmm.lib")
+
+
 
 // user input을 받아서 처리하기 위하여 일정 시간마다 timeover 반환 - microsecond
 int32_t check_std_in(int32_t a_timeout)
@@ -57,6 +60,8 @@ std::vector<std::string> seperate_cmd(std::string str, char operator_char)
 
 int main(void)
 {
+    Dynamixel* dynamixel = new Dynamixel;
+    
     bool loop = true;
     char cmd_input[256];
 
@@ -103,9 +108,15 @@ int main(void)
         }
         else if (input[0] == "control")
         {
-            
+            //dynamixel->controlTest();
+        }
+        else
+        {
+
         }
     }
+
+    delete dynamixel;
 
     std::cout << "main end" << std::endl;
 
