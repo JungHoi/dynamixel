@@ -1,0 +1,8 @@
+{
+    "files.associations": {
+        "numeric": "cpp",
+        "iostream": "cpp",
+        "wiringPi": "cpp",
+        "wiringSerial": "cpp"
+    }
+}

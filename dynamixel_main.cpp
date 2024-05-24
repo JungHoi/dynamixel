@@ -101,9 +101,9 @@ int main(void)
         {
             system("clear");
         }
-        else
+        else if (input[0] == "control")
         {
-
+            
         }
     }
 
