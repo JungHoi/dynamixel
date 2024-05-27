@@ -10,9 +10,11 @@
             "label": "save and compile for C++",
             "command": "/usr/bin/g++",
             "args": [
-                "${file}",
+                "dynamixel_main.cpp",
+                "dynamixel.cpp",
                 "-o",
-                "${fileDirname}/${fileBasenameNoExtension}"
+                "${fileDirname}/${fileBasenameNoExtension}",
+                "-g"
             ],
             "group": "build",
 
@@ -83,5 +85,6 @@
         //     ]
    
         // }
+   
     ]
 }

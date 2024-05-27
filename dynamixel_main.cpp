@@ -108,7 +108,7 @@ int main(void)
         }
         else if (input[0] == "control")
         {
-            //dynamixel->controlTest();
+            dynamixel->controlTest();
         }
         else
         {
