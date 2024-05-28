@@ -10,11 +10,14 @@
             "label": "save and compile for C++",
             "command": "/usr/bin/g++",
             "args": [
+                "-I${workspaceFolder}",
+                "-I/home/junghoi/Desktop/Dynamixel_test/DynamixelSDK/c++/include/dynamixel_sdk/",
                 "dynamixel_main.cpp",
                 "dynamixel.cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-g"
+              
             ],
             "group": "build",
 

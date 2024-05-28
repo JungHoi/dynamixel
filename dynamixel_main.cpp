@@ -10,6 +10,8 @@
 #include "dynamixel.h"
 
 //#include <windows.h>
+
+
 //#pragma comment (lib, "winmm.lib")
 
 
@@ -109,6 +111,14 @@ int main(void)
         else if (input[0] == "control")
         {
             dynamixel->controlTest();
+        }
+        else if (input[0] == "run")
+        {
+            dynamixel->controlTestRun();
+        }
+        else if (input[0] == "stop")
+        {
+            dynamixel->controlTestStop();
         }
         else
         {
