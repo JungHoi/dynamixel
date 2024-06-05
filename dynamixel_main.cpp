@@ -73,6 +73,7 @@ int main(void)
     auto curTime = time;
     //long time = timeGetTime();
     //long curTime = 0;
+    //dynamixel->init();
 
     while (loop)
     {
@@ -110,21 +111,25 @@ int main(void)
         }
         else if (input[0] == "control")
         {
-            dynamixel->controlTest();
+            dynamixel->control_test();
         }
         else if (input[0] == "run")
         {
-            dynamixel->controlTestRun();
+            dynamixel->control_run();
         }
         else if (input[0] == "stop")
         {
-            dynamixel->controlTestStop();
+            dynamixel->control_stop();
         }
         else
         {
 
         }
+       
     }
+
+    //dynamixel->torque_off();
+    //dynamixel->close_port();
 
     delete dynamixel;
 

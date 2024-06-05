@@ -14,6 +14,8 @@
                 "-I/home/junghoi/Desktop/Dynamixel_test/DynamixelSDK/c++/include/dynamixel_sdk/",
                 "dynamixel_main.cpp",
                 "dynamixel.cpp",
+                "-L/home/junghoi/Desktop/Dynamixel_test/DynamixelSDK/c++/build/linux64",
+                "-ldxl_x64_cpp",
                 "-o",
                 "${fileDirname}/${fileBasenameNoExtension}",
                 "-g"
