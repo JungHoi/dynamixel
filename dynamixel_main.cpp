@@ -109,27 +109,15 @@ int main(void)
         {
             system("clear");
         }
-        else if (input[0] == "control")
-        {
-            dynamixel->control_test();
-        }
-        else if (input[0] == "run")
-        {
-            dynamixel->control_run();
-        }
-        else if (input[0] == "stop")
-        {
-            dynamixel->control_stop();
-        }
         else
         {
-
+            dynamixel->control(str);
         }
        
     }
 
-    //dynamixel->torque_off();
-    //dynamixel->close_port();
+   // dynamixel->torque_off();
+   // dynamixel->close_port();
 
     delete dynamixel;
 
