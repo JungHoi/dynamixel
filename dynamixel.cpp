@@ -5,13 +5,124 @@ Dynamixel::Dynamixel()
     portHandler = dynamixel::PortHandler::getPortHandler(DEVICENAME);
     packetHandler = dynamixel::PacketHandler::getPacketHandler(PROTOCOL_VERSION);
     
+    //log_file.open("dynamixel_log.txt", std::ios::app);
     init();
+    std::thread connect_moniter_thread(&Dynamixel::connect_thread, this);
+    connect_moniter_thread.detach();
 }
 
 Dynamixel::~Dynamixel()
 {
     torque_off();
     close_port();
+
+    //log_file.close();
+}
+
+std::string get_current_time_stamp()
+{
+    auto now = std::chrono::system_clock::now();
+    auto now_ms = std::chrono::time_point_cast<std::chrono::milliseconds>(now);
+    auto epoch = now_ms.time_since_epoch();
+    auto value = std::chrono::duration_cast<std::chrono::milliseconds>(epoch);
+    std::time_t now_t = std::chrono::system_clock::to_time_t(now);
+
+    std::stringstream ss;
+    ss << std::put_time(std::localtime(&now_t), "%Y-%m-%d %H:%M:%s") << '.' << std::setfill('0') << std::setw(3) << value.count() % 1000;
+
+    return ss.str();
+}
+
+void Dynamixel::init()
+{
+    _dxl_comm_result = 0;
+    _dxl_error = 0;
+    set_buadrate();
+    open_port();
+    set_operating_mode();
+    std::cerr << "Dynamixel initialize!" << std::endl;
+}
+
+void Dynamixel::set_buadrate()
+{
+    portHandler->setBaudRate(BAUDRATE);
+    std::cerr << "Set to Buadrate is " << BAUDRATE << std::endl;
+    //log_file << "Set to Buadrate is " << BAUDRATE << std::endl;
+}
+
+void Dynamixel::open_port()
+{
+    portHandler->openPort();
+    std::cerr << "Open port!" << std::endl;
+    //log_file << "Open port!" << std::endl;
+}
+
+void Dynamixel::close_port()
+{
+    portHandler->closePort();
+    std::cerr << "Close port!" << std::endl;
+    //log_filed << "Close port! " << std::endl;
+}
+
+void Dynamixel::set_rpm()
+{
+    std::cout << "Goal velocity set to " << _dxl_goal_rpm << " RPM!" << std::endl;
+    //log_file << "Goal velocity set to " << _dxl_goal_rpm << " RPM!" << std::endl;
+}
+
+void Dynamixel::set_operating_mode()
+{
+    _dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, DXL_ID, ADDR_OPERATING_MODE, 1, &_dxl_error);
+    if (_dxl_comm_result == 0)
+    {
+        std::cerr << "Success to set operating mode!" << std::endl;
+        //log_file << "Success to set operating mode!" << std::endl;
+    }
+    else
+    {
+        std::cerr << "Failed to set operating mode!" << std::endl;
+        //log_file << "Failed to set operating mode! " << std::endl;
+    }
+}
+
+void Dynamixel::torque_on()
+{
+    _dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, DXL_ID, ADDR_TORQUE_ENABLE, 1, &_dxl_error);
+    if (_dxl_comm_result != COMM_SUCCESS)
+    {
+        std::cerr << "Failed to enable torque!" << std::endl;
+        //log_file << "Failed to enable torque!" << std::endl;
+    }
+    else if (_dxl_error != 0)
+    {
+        std::cerr << "Error in enable torque!" << std::endl;
+        //log_file << "Error in enable torque!" << std::endl;
+    }
+    else
+    {
+        std::cerr << "Torque on!" << std::endl;
+        //log_file << "Torque on!" << std::endl;
+    }
+}
+
+void Dynamixel::torque_off()
+{
+    _dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, DXL_ID, ADDR_TORQUE_ENABLE, 0, &_dxl_error);
+    if (_dxl_comm_result != COMM_SUCCESS)
+    {
+        std::cerr << "Failed to disable torque!" << std::endl;
+        //log_file << "Failed to disable torque!" << std::endl;
+    }
+    else if (_dxl_error != 0)
+    {
+        std::cerr << "Error in disable torque!" << std::endl;
+        //log_file << "Error in disable torque!" << std::endl;
+    }
+    else
+    {
+        std::cerr << "Torque off!" << std::endl;
+        //log_file << "Torque off!" << std::endl;
+    }
 }
 
 void Dynamixel::control_run()
@@ -24,14 +135,17 @@ void Dynamixel::control_run()
         if (_dxl_comm_result != COMM_SUCCESS)
 	    {
 		    std::cerr << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
+            //log_file << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
 	    }
 	    else if (_dxl_error != 0)
 	    {
 		    std::cerr << "Error in setting goal_velocity! Error: " << _dxl_error << std::endl;
+            //log_file << "Error in setting goal_velocuty! Error: " << _dxl_error << std::endl;
 	    }
 	    else
 	    {
 		    std::cout << "Motor running to " << _dxl_goal_rpm << "RPM!" << std::endl;
+            //log_file << "Motor running to " << _dxl_goal_rpm << "RPM!" << std::endl;
 	    }
     }
     else
@@ -48,109 +162,84 @@ void Dynamixel::control_stop()
     if (_dxl_comm_result != COMM_SUCCESS)
 	{
 		std::cerr << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
+        //log_file << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
 	}
 	else if (_dxl_error != 0)
 	{
 		std::cerr << "Error in setting goal_velocity! Error: " << _dxl_error << std::endl;
+        //log_file << "Error in setting goal_velocity! Error: " << _dxl_error << std::endl;
 	}
 	else
 	{
-		std::cout << "Motor stop" << std::endl;
+		std::cout << "Motor stopped!" << std::endl;
+        //log_file << "Motor stopped!" << std::endl;
 	}
     
 }
 
-void Dynamixel::init()
+void Dynamixel::get_current_pos()
 {
-    _dxl_comm_result = 0;
-    _dxl_error = 0;
-    set_buadrate();
-    open_port();
-    set_operating_mode();
-}
-
-
-void Dynamixel::set_rpm()
-{
-    //_dxl_comm_result = packetHandler->write4ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_VELOCITY, _dxl_goal_rpm, &_dxl_error);
-    //if (_dxl_comm_result != COMM_SUCCESS)
-	//{
-	//	std::cerr << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
-	//}
-	//else if (_dxl_error != 0)
-	//{
-	//	std::cerr << "Error in setting goal_velocity! Error: " << _dxl_error << std::endl;
-	//}
-	//else
-	//{
-	//	std::cout << "Goal velocity set to " << _dxl_goal_rpm << " RPM!" << std::endl;
-	//}
-    std::cout << "Goal velocity set to " << _dxl_goal_rpm << " RPM!" << std::endl;
-}
-
-void Dynamixel::set_operating_mode()
-{
-    _dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, DXL_ID, ADDR_OPERATING_MODE, 1, &_dxl_error);
-    if (_dxl_comm_result == 0)
-    {
-        std::cerr << "Success to set operating mode!" << std::endl;
-    }
-    else
-    {
-        std::cerr << "Failed to set operating mode!" << std::endl;
-    }
-}
-
-void Dynamixel::torque_on()
-{
-    _dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, DXL_ID, ADDR_TORQUE_ENABLE, 1, &_dxl_error);
+    _dxl_comm_result = packetHandler->read4ByteTxRx(portHandler, DXL_ID, ADDR_PRESENT_POSITION, (uint32_t*)&_dxl_present_postion, &_dxl_error);
     if (_dxl_comm_result != COMM_SUCCESS)
     {
-        std::cerr << "Failed to enable torque!" << std::endl;
+        std::cerr << "Failed to read position! Error: " << _dxl_comm_result << std::endl;
+        //log_file << "Failed to read position! Error: " << _dxl_comm_result << std::endl;
     }
     else if (_dxl_error != 0)
     {
-        std::cerr << "Error in enable torque!" << std::endl;
+        std::cerr << "Error to read position! Error: " << _dxl_error << std::endl;
+        //log_file << "Error to read position! Error: " << _dxl_error << std::endl;
     }
     else
     {
-        std::cerr << "Torque on!" << std::endl;
+        std::cout << "Current postion : " << _dxl_present_postion << std::endl;
+        //log_file << "Current position : " << _dxl_present_position << std::endl;
     }
 }
 
-void Dynamixel::torque_off()
+void Dynamixel::reboot()
 {
-    _dxl_comm_result = packetHandler->write1ByteTxRx(portHandler, DXL_ID, ADDR_TORQUE_ENABLE, 0, &_dxl_error);
+    _dxl_comm_result = packetHandler->reboot(portHandler, DXL_ID, &_dxl_error);
+    std::cerr << "Reboot Success!" << std::endl;
+    //log_file << "Reboot Success!" << std::endl;
+}
+
+void Dynamixel::reconnect()
+{
+    std::cerr << "Reconnecting..." << std::endl;
+    reboot();
+    init();
+    std::cerr << "Reconnecting Success!" << std::endl;
+    //log_file << "Reconnecting Success!" << std::endl;
+}
+
+bool Dynamixel::ping()
+{
+    _dxl_comm_result = packetHandler->ping(portHandler, DXL_ID, &_dxl_error);
     if (_dxl_comm_result != COMM_SUCCESS)
     {
-        std::cerr << "Failed to disable torque!" << std::endl;
+        std::cerr << "[" << get_current_time_stamp() << "] " << "ping error in motor" << _dxl_comm_result << std::endl;
+        return false;
     }
     else if (_dxl_error != 0)
     {
-        std::cerr << "Error in disable torque!" << std::endl;
+        std::cerr << "[" << get_current_time_stamp() << "] " << "Error in motor ping" << _dxl_error << std::endl;
+        return false;
     }
-    else
+    return true;
+}
+
+void Dynamixel::connect_thread()
+{
+    while (true)
     {
-        std::cerr << "Torque off!" << std::endl;
+        if (!ping())
+        {
+            std::cerr << "retry connecting to motor.." << std::endl;
+            init();
+        }
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
-}
-
-void Dynamixel::open_port()
-{
-    portHandler->openPort();
-    std::cerr << "Open port!" << std::endl;
-}
-
-void Dynamixel::close_port()
-{
-   portHandler->closePort();
-   std::cerr << "Close port!" << std::endl;
-}
-
-void Dynamixel::set_buadrate()
-{
-    portHandler->setBaudRate(BAUDRATE);
-    std::cerr << "Set to Buadrate is " << BAUDRATE << std::endl;
 }
 
 // string을 첫번째 구분자를 기준으로 command, option으로 분리
@@ -257,3 +346,4 @@ int32_t Dynamixel::control(std::string command)
 
     return 0;
 }
+

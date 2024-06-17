@@ -8,9 +8,7 @@
 #include <unistd.h>
 #include <sys/select.h>
 #include "dynamixel.h"
-
-//#include <windows.h>
-
+//#include <windows.h> 환경이 window 일 때, 사용
 
 //#pragma comment (lib, "winmm.lib")
 
@@ -71,9 +69,6 @@ int main(void)
 
     auto time = std::chrono::high_resolution_clock::now();
     auto curTime = time;
-    //long time = timeGetTime();
-    //long curTime = 0;
-    //dynamixel->init();
 
     while (loop)
     {
@@ -115,9 +110,6 @@ int main(void)
         }
        
     }
-
-   // dynamixel->torque_off();
-   // dynamixel->close_port();
 
     delete dynamixel;
 

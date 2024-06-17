@@ -5,6 +5,10 @@
 #include "dynamixel_sdk.h"
 #include <sstream>
 #include <string>
+#include <fstream>
+#include <chrono>
+#include <iomanip>
+#include <thread>
 
 // Protocol setting
 #define PROTOCOL_VERSION 2.0        // Dynamixel protocol version 2.0
@@ -31,27 +35,35 @@ class Dynamixel
     public:
         Dynamixel();
         virtual ~Dynamixel();
-        void init();
-        void set_torque();
-        void set_buadrate();
-        void open_port();
-        void close_port();
-        //void control_test();
-        void control_run();
-        void control_stop();
-        void set_rpm();
-        void set_operating_mode();
-        void torque_on();
-        void torque_off();
+
         int32_t control(std::string command);
-
-
 
     private:
         int32_t _dxl_comm_result = 0;
         uint8_t _dxl_error = 0;
         int32_t _dxl_goal_rpm = 0;
-        int32_t _dxl_present_postion;
+        uint32_t _dxl_present_postion = 0;
+
+        void init();
+        void set_buadrate();
+        void open_port();
+        void close_port();
+        void set_rpm();
+        void set_operating_mode();
+        void torque_on();
+        void torque_off();
+        void control_run();
+        void control_stop();
+        void get_current_pos();
+        void reboot();
+        void reconnect();
+        bool ping();
+        void connect_thread();
+
+
+    protected:
+    
+        std::ofstream log_file;
 
         dynamixel::PortHandler* portHandler = nullptr;
         dynamixel::PacketHandler* packetHandler = nullptr;   
