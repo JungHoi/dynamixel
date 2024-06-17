@@ -5,7 +5,7 @@ Dynamixel::Dynamixel()
     portHandler = dynamixel::PortHandler::getPortHandler(DEVICENAME);
     packetHandler = dynamixel::PacketHandler::getPacketHandler(PROTOCOL_VERSION);
     
-    //log_file.open("dynamixel_log.txt", std::ios::app);
+    log_file.open("dynamixel_log.txt", std::ios::app);
     init();
     std::thread connect_moniter_thread(&Dynamixel::connect_thread, this);
     connect_moniter_thread.detach();
@@ -16,7 +16,7 @@ Dynamixel::~Dynamixel()
     torque_off();
     close_port();
 
-    //log_file.close();
+    log_file.close();
 }
 
 std::string get_current_time_stamp()
@@ -28,7 +28,7 @@ std::string get_current_time_stamp()
     std::time_t now_t = std::chrono::system_clock::to_time_t(now);
 
     std::stringstream ss;
-    ss << std::put_time(std::localtime(&now_t), "%Y-%m-%d %H:%M:%s") << '.' << std::setfill('0') << std::setw(3) << value.count() % 1000;
+    ss << std::put_time(std::localtime(&now_t), "%Y-%m-%d %H:%M:%S") << '.' << std::setfill('0') << std::setw(3) << value.count() % 1000;
 
     return ss.str();
 }
@@ -47,27 +47,27 @@ void Dynamixel::set_buadrate()
 {
     portHandler->setBaudRate(BAUDRATE);
     std::cerr << "Set to Buadrate is " << BAUDRATE << std::endl;
-    //log_file << "Set to Buadrate is " << BAUDRATE << std::endl;
+    log_file << "[" << get_current_time_stamp() << "]" << "Set to Buadrate is " << BAUDRATE << std::endl;
 }
 
 void Dynamixel::open_port()
 {
     portHandler->openPort();
     std::cerr << "Open port!" << std::endl;
-    //log_file << "Open port!" << std::endl;
+    log_file << "[" << get_current_time_stamp() << "]" << "Open port!" << std::endl;
 }
 
 void Dynamixel::close_port()
 {
     portHandler->closePort();
     std::cerr << "Close port!" << std::endl;
-    //log_filed << "Close port! " << std::endl;
+    log_file << "[" << get_current_time_stamp() << "]" << "Close port! " << std::endl;
 }
 
 void Dynamixel::set_rpm()
 {
     std::cout << "Goal velocity set to " << _dxl_goal_rpm << " RPM!" << std::endl;
-    //log_file << "Goal velocity set to " << _dxl_goal_rpm << " RPM!" << std::endl;
+    log_file << "[" << get_current_time_stamp() << "]" << "Goal velocity set to " << _dxl_goal_rpm << " RPM!" << std::endl;
 }
 
 void Dynamixel::set_operating_mode()
@@ -76,12 +76,12 @@ void Dynamixel::set_operating_mode()
     if (_dxl_comm_result == 0)
     {
         std::cerr << "Success to set operating mode!" << std::endl;
-        //log_file << "Success to set operating mode!" << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Success to set operating mode!" << std::endl;
     }
     else
     {
         std::cerr << "Failed to set operating mode!" << std::endl;
-        //log_file << "Failed to set operating mode! " << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Failed to set operating mode! " << std::endl;
     }
 }
 
@@ -91,17 +91,17 @@ void Dynamixel::torque_on()
     if (_dxl_comm_result != COMM_SUCCESS)
     {
         std::cerr << "Failed to enable torque!" << std::endl;
-        //log_file << "Failed to enable torque!" << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Failed to enable torque!" << std::endl;
     }
     else if (_dxl_error != 0)
     {
         std::cerr << "Error in enable torque!" << std::endl;
-        //log_file << "Error in enable torque!" << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Error in enable torque!" << std::endl;
     }
     else
     {
         std::cerr << "Torque on!" << std::endl;
-        //log_file << "Torque on!" << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Torque on!" << std::endl;
     }
 }
 
@@ -111,17 +111,17 @@ void Dynamixel::torque_off()
     if (_dxl_comm_result != COMM_SUCCESS)
     {
         std::cerr << "Failed to disable torque!" << std::endl;
-        //log_file << "Failed to disable torque!" << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Failed to disable torque!" << std::endl;
     }
     else if (_dxl_error != 0)
     {
         std::cerr << "Error in disable torque!" << std::endl;
-        //log_file << "Error in disable torque!" << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Error in disable torque!" << std::endl;
     }
     else
     {
         std::cerr << "Torque off!" << std::endl;
-        //log_file << "Torque off!" << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Torque off!" << std::endl;
     }
 }
 
@@ -135,17 +135,17 @@ void Dynamixel::control_run()
         if (_dxl_comm_result != COMM_SUCCESS)
 	    {
 		    std::cerr << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
-            //log_file << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
+            log_file << "[" << get_current_time_stamp() << "]" << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
 	    }
 	    else if (_dxl_error != 0)
 	    {
 		    std::cerr << "Error in setting goal_velocity! Error: " << _dxl_error << std::endl;
-            //log_file << "Error in setting goal_velocuty! Error: " << _dxl_error << std::endl;
+            log_file << "[" << get_current_time_stamp() << "]" << "Error in setting goal_velocuty! Error: " << _dxl_error << std::endl;
 	    }
 	    else
 	    {
 		    std::cout << "Motor running to " << _dxl_goal_rpm << "RPM!" << std::endl;
-            //log_file << "Motor running to " << _dxl_goal_rpm << "RPM!" << std::endl;
+            log_file << "[" << get_current_time_stamp() << "]" << "Motor running to " << _dxl_goal_rpm << "RPM!" << std::endl;
 	    }
     }
     else
@@ -162,38 +162,38 @@ void Dynamixel::control_stop()
     if (_dxl_comm_result != COMM_SUCCESS)
 	{
 		std::cerr << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
-        //log_file << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
 	}
 	else if (_dxl_error != 0)
 	{
 		std::cerr << "Error in setting goal_velocity! Error: " << _dxl_error << std::endl;
-        //log_file << "Error in setting goal_velocity! Error: " << _dxl_error << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Error in setting goal_velocity! Error: " << _dxl_error << std::endl;
 	}
 	else
 	{
 		std::cout << "Motor stopped!" << std::endl;
-        //log_file << "Motor stopped!" << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Motor stopped!" << std::endl;
 	}
     
 }
 
 void Dynamixel::get_current_pos()
 {
-    _dxl_comm_result = packetHandler->read4ByteTxRx(portHandler, DXL_ID, ADDR_PRESENT_POSITION, (uint32_t*)&_dxl_present_postion, &_dxl_error);
+    _dxl_comm_result = packetHandler->read4ByteTxRx(portHandler, DXL_ID, ADDR_PRESENT_POSITION, (uint32_t*)&_dxl_present_position, &_dxl_error);
     if (_dxl_comm_result != COMM_SUCCESS)
     {
         std::cerr << "Failed to read position! Error: " << _dxl_comm_result << std::endl;
-        //log_file << "Failed to read position! Error: " << _dxl_comm_result << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Failed to read position! Error: " << _dxl_comm_result << std::endl;
     }
     else if (_dxl_error != 0)
     {
         std::cerr << "Error to read position! Error: " << _dxl_error << std::endl;
-        //log_file << "Error to read position! Error: " << _dxl_error << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Error to read position! Error: " << _dxl_error << std::endl;
     }
     else
     {
-        std::cout << "Current postion : " << _dxl_present_postion << std::endl;
-        //log_file << "Current position : " << _dxl_present_position << std::endl;
+        std::cout << "Current postion : " << _dxl_present_position << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Current position : " << _dxl_present_position << std::endl;
     }
 }
 
@@ -201,7 +201,7 @@ void Dynamixel::reboot()
 {
     _dxl_comm_result = packetHandler->reboot(portHandler, DXL_ID, &_dxl_error);
     std::cerr << "Reboot Success!" << std::endl;
-    //log_file << "Reboot Success!" << std::endl;
+    log_file << "[" << get_current_time_stamp() << "]" << "Reboot Success!" << std::endl;
 }
 
 void Dynamixel::reconnect()
@@ -210,7 +210,7 @@ void Dynamixel::reconnect()
     reboot();
     init();
     std::cerr << "Reconnecting Success!" << std::endl;
-    //log_file << "Reconnecting Success!" << std::endl;
+    log_file << "[" << get_current_time_stamp() << "]" << "Reconnecting Success!" << std::endl;
 }
 
 bool Dynamixel::ping()

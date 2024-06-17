@@ -42,7 +42,7 @@ class Dynamixel
         int32_t _dxl_comm_result = 0;
         uint8_t _dxl_error = 0;
         int32_t _dxl_goal_rpm = 0;
-        uint32_t _dxl_present_postion = 0;
+        uint32_t _dxl_present_position = 0;
 
         void init();
         void set_buadrate();
