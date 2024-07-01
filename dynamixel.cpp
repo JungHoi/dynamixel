@@ -47,7 +47,6 @@ void Dynamixel::set_buadrate()
 {
     portHandler->setBaudRate(BAUDRATE);
     std::cerr << "Set to Buadrate is " << BAUDRATE << std::endl;
-    log_file << "[" << get_current_time_stamp() << "]" << "Set to Buadrate is " << BAUDRATE << std::endl;
 }
 
 void Dynamixel::open_port()
@@ -145,7 +144,6 @@ void Dynamixel::control_run()
 	    else
 	    {
 		    std::cout << "Motor running to " << _dxl_goal_rpm << "RPM!" << std::endl;
-            log_file << "[" << get_current_time_stamp() << "]" << "Motor running to " << _dxl_goal_rpm << "RPM!" << std::endl;
 	    }
     }
     else
@@ -161,13 +159,13 @@ void Dynamixel::control_stop()
     _dxl_comm_result = packetHandler->write4ByteTxRx(portHandler, DXL_ID, ADDR_GOAL_VELOCITY, 0, &_dxl_error);
     if (_dxl_comm_result != COMM_SUCCESS)
 	{
-		std::cerr << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
-        log_file << "[" << get_current_time_stamp() << "]" << "Failed to set goal_velocity! Error: " << _dxl_comm_result << std::endl;
+		std::cerr << "Failed to stop! Error: " << _dxl_comm_result << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Failed to stop! Error: " << _dxl_comm_result << std::endl;
 	}
 	else if (_dxl_error != 0)
 	{
-		std::cerr << "Error in setting goal_velocity! Error: " << _dxl_error << std::endl;
-        log_file << "[" << get_current_time_stamp() << "]" << "Error in setting goal_velocity! Error: " << _dxl_error << std::endl;
+		std::cerr << "Error in setting motor stop! Error: " << _dxl_error << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Error in setting motor stop! Error: " << _dxl_error << std::endl;
 	}
 	else
 	{
@@ -218,12 +216,14 @@ bool Dynamixel::ping()
     _dxl_comm_result = packetHandler->ping(portHandler, DXL_ID, &_dxl_error);
     if (_dxl_comm_result != COMM_SUCCESS)
     {
-        std::cerr << "[" << get_current_time_stamp() << "] " << "ping error in motor" << _dxl_comm_result << std::endl;
+        std::cerr << "[" << get_current_time_stamp() << "] " << "Ping error in motor" << _dxl_comm_result << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Ping error in motor" << std::endl;
         return false;
     }
     else if (_dxl_error != 0)
     {
         std::cerr << "[" << get_current_time_stamp() << "] " << "Error in motor ping" << _dxl_error << std::endl;
+        log_file << "[" << get_current_time_stamp() << "]" << "Error in motor ping" << std::endl;
         return false;
     }
     return true;
@@ -235,8 +235,9 @@ void Dynamixel::connect_thread()
     {
         if (!ping())
         {
-            std::cerr << "retry connecting to motor.." << std::endl;
-            init();
+            std::cerr << "Retry connecting to motor.." << std::endl;
+            log_file << "[" << get_current_time_stamp() << "]" << "Retry connecting to motor.." << std::endl;
+            reconnect();
         }
         std::this_thread::sleep_for(std::chrono::milliseconds(1000));
     }
@@ -324,7 +325,7 @@ int32_t Dynamixel::control(std::string command)
     }
     else if (input[0] == "rpm")
     {
-        if (input.size() >1)
+        if (input.size() > 1)
         {
             _dxl_goal_rpm = std::stoi(input[1]);
             set_rpm();
